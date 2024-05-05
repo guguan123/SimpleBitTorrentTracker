@@ -1,4 +1,5 @@
 <?php
+// 从配置文件获取数据库信息
 require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 
 // 创建连接
