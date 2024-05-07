@@ -1,4 +1,4 @@
-# BitTorrentTracker
+# SimpleBitTorrentTracker
 一个简单的BitTorrent Tracker，只有最基础的功能。~~纯小白刚刚开始自学PHP，写的烂轻喷~~
 
 ## 安装方法
