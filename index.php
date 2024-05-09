@@ -27,11 +27,33 @@ $conn->close();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GuGuan123's BitTorrent Tracker Status</title>
+    <title>GuGuan123s BitTorrent Tracker Status</title>
 </head>
 <body>
     <h1>BitTorrent Tracker Status</h1>
     <p><strong>Database list:</strong> <?php echo $totalTorrents; ?></p>
-    <p>Tracker URL: <i>http://tracker.guguan.000.pe/announce</i></p>
+    <p>Tracker URL: <i class="tracker-url">http://tracker.guguan.000.pe/announce</i></p>
+    <style>
+        /* 暗黑模式下的样式 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1e1e1e;
+                color: #ffffff;
+            }
+        }
+    </style>
+    <script>
+        function getBaseUrl() {
+            var url = window.location.href;   // 获取完整的 URL
+            var baseUrl = new URL(url);       // 创建 URL 对象
+            return baseUrl.protocol + "//" + baseUrl.host; // 组合协议和主机名
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var trackerUrl = getBaseUrl() + "/announce";
+            var trackerElement = document.querySelector(".tracker-url"); // 使用 class 属性来获取元素
+            trackerElement.textContent = trackerUrl; // 自动根据当前Url更新Tracker服务器地址
+        });
+    </script>
 </body>
 </html>
