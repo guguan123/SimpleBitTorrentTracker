@@ -27,7 +27,7 @@ $conn->close();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GuGuan123s BitTorrent Tracker Status</title>
+    <title>GuGuan123's BitTorrent Tracker Status</title>
 </head>
 <body>
     <h1>BitTorrent Tracker Status</h1>
@@ -37,8 +37,9 @@ $conn->close();
         /* 暗黑模式下的样式 */
         @media (prefers-color-scheme: dark) {
             body {
-                background-color: #1e1e1e;
+                background-color: #000;
                 color: #ffffff;
+                opacity: 0.87;
             }
         }
     </style>
