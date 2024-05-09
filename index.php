@@ -24,14 +24,14 @@ $conn->close();
 ?>
 
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>GuGuan123's BitTorrent Tracker Status</title>
 </head>
 <body>
     <h1>BitTorrent Tracker Status</h1>
-    <p><strong>Total Torrents:</strong> <?php echo $totalTorrents; ?></p>
-    <p>Tracker URL: <i>http://tracker.guguan.000.pe/announce/</i></p>
+    <p><strong>Database list:</strong> <?php echo $totalTorrents; ?></p>
+    <p>Tracker URL: <i>http://tracker.guguan.000.pe/announce</i></p>
 </body>
 </html>
