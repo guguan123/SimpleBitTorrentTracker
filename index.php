@@ -34,6 +34,7 @@ $conn->close();
     <p><strong>Total Torrents:</strong> <?php echo $totalTorrentsCount; ?></p>
     <p><strong>Total Peers:</strong> <?php echo $totalPeersCount; ?></p>
     <p>Tracker URL: <i class="tracker-url">http://tracker.guguan.000.pe/announce</i></p>
+    <a href="https://wapmz.com/in/89"><img src="https://wapmz.com/cn/big/89" alt="wapmz.com"></a>
     <style>
         /* 暗黑模式下的样式 */
         @media (prefers-color-scheme: dark) {
@@ -47,9 +48,9 @@ $conn->close();
     <script>
         // 自动根据当前Url更新Tracker服务器地址
         document.addEventListener("DOMContentLoaded", function() {
-            var baseUrl = new URL(window.location.href);       // 创建 URL 对象
-            var trackerUrl = baseUrl.protocol + "//" + baseUrl.host + "/announce"; // 组合协议和主机名
-            var trackerElement = document.querySelector(".tracker-url"); // 使用 class 属性来获取元素
+            let baseUrl = new URL(window.location.href);       // 创建 URL 对象
+            let trackerUrl = baseUrl.protocol + "//" + baseUrl.host + "/announce"; // 组合协议和主机名
+            let trackerElement = document.querySelector(".tracker-url"); // 使用 class 属性来获取元素
             trackerElement.textContent = trackerUrl;
         });
     </script>
