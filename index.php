@@ -39,21 +39,17 @@ $conn->close();
             body {
                 background-color: #000;
                 color: #ffffff;
-                opacity: 0.87;
+                opacity: 0.87; /* 设置字体透明度为87%以增加可读性 */
             }
         }
     </style>
     <script>
-        function getBaseUrl() {
-            var url = window.location.href;   // 获取完整的 URL
-            var baseUrl = new URL(url);       // 创建 URL 对象
-            return baseUrl.protocol + "//" + baseUrl.host; // 组合协议和主机名
-        }
-
+        // 自动根据当前Url更新Tracker服务器地址
         document.addEventListener("DOMContentLoaded", function() {
-            var trackerUrl = getBaseUrl() + "/announce";
+            var baseUrl = new URL(window.location.href);       // 创建 URL 对象
+            var trackerUrl = baseUrl.protocol + "//" + baseUrl.host + "/announce"; // 组合协议和主机名
             var trackerElement = document.querySelector(".tracker-url"); // 使用 class 属性来获取元素
-            trackerElement.textContent = trackerUrl; // 自动根据当前Url更新Tracker服务器地址
+            trackerElement.textContent = trackerUrl;
         });
     </script>
 </body>
