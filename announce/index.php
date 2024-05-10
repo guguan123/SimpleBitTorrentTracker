@@ -13,10 +13,11 @@ if ($conn->connect_error) {
 $info_hash = $_GET['info_hash'] ?? null;
 $peer_id = $_GET['peer_id'] ?? null;
 $port = $_GET['port'] ?? null;
+$ipv4 = $_GET['ipv4'] ?? null;
 $ipv6 = $_GET['ipv6'] ?? null;
-$downloaded = $_GET['downloaded'] ?? 0;
-$left = $_GET['left'] ?? 0;
-$uploaded = $_GET['uploaded'] ?? 0;
+$downloaded = $_GET['downloaded'];
+$left = $_GET['left'];
+$uploaded = $_GET['uploaded'];
 $supportcrypto = isset($_GET['supportcrypto']) ? 1 : 0;
 
 // 检查必要参数是否存在
@@ -25,8 +26,10 @@ if (!$info_hash || !$peer_id || !$port) {
     exit;
 }
 
-// 获取IPv4地址
-$ipv4 = $_SERVER['REMOTE_ADDR'];
+if (empty($ipv4) && empty($ipv6)) {
+    // 如果客户端没报告IP地址信息，获取IPv4地址
+    $ipv4 = $_SERVER['REMOTE_ADDR'];
+}
 
 // 准备SQL语句用于更新或插入peer信息
 $updateSql = "INSERT INTO peers (info_hash, peer_id, ipv4, ipv6, port, downloaded, `left`, uploaded, supportcrypto, updated_at)
