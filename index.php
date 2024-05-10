@@ -10,15 +10,15 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
-// 查询当前活跃的 torrents 数量
-$sqlTorrents = "SELECT COUNT(*) as total FROM peers";
-$resultTorrents = $conn->query($sqlTorrents);
+// 查询种子数量
+$sqlTorrentsCount = "SELECT COUNT(*) as total FROM peers GROUP BY info_hash";
+$resultTorrentsCount = $conn->query($sqlTorrentsCount);
+$totalTorrentsCount = $resultTorrentsCount->num_rows;
 
-if ($resultTorrents === false) {
-  die("Error executing query: " . $conn->error);
-}
-
-$totalTorrents = $resultTorrents->fetch_assoc()['total'];
+// 查询对等节点数量
+$sqlPeersCount = "SELECT COUNT(*) as total FROM peers";
+$resultPeersCount = $conn->query($sqlPeersCount);
+$totalPeersCount = $resultPeersCount->fetch_assoc()['total'];
 
 $conn->close();
 ?>
@@ -31,7 +31,8 @@ $conn->close();
 </head>
 <body>
     <h1>BitTorrent Tracker Status</h1>
-    <p><strong>Database list:</strong> <?php echo $totalTorrents; ?></p>
+    <p><strong>Total Torrents:</strong> <?php echo $totalTorrentsCount; ?></p>
+    <p><strong>Total Peers:</strong> <?php echo $totalPeersCount; ?></p>
     <p>Tracker URL: <i class="tracker-url">http://tracker.guguan.000.pe/announce</i></p>
     <style>
         /* 暗黑模式下的样式 */
