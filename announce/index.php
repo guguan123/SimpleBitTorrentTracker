@@ -1,11 +1,15 @@
 <?php
+// 引入配置文件
 require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 
+// 创建数据库连接
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+// 检查数据库连接是否成功
 if ($conn->connect_error) {
     die(bencode(['failure reason' => 'Database connection failed']));
 }
 
+// 从GET请求中获取必要的参数
 $info_hash = $_GET['info_hash'] ?? null;
 $peer_id = $_GET['peer_id'] ?? null;
 $port = $_GET['port'] ?? null;
@@ -15,26 +19,32 @@ $left = $_GET['left'] ?? 0;
 $uploaded = $_GET['uploaded'] ?? 0;
 $supportcrypto = isset($_GET['supportcrypto']) ? 1 : 0;
 
+// 检查必要参数是否存在
 if (!$info_hash || !$peer_id || !$port) {
     echo bencode(['failure reason' => 'missing required parameters']);
     exit;
 }
 
+// 获取IPv4地址
 $ipv4 = $_SERVER['REMOTE_ADDR'];
 
+// 准备SQL语句用于更新或插入peer信息
 $updateSql = "INSERT INTO peers (info_hash, peer_id, ipv4, ipv6, port, downloaded, `left`, uploaded, supportcrypto, updated_at)
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
               ON DUPLICATE KEY UPDATE ipv4=VALUES(ipv4), ipv6=VALUES(ipv6), port=VALUES(port), downloaded=VALUES(downloaded),
               `left`=VALUES(`left`), uploaded=VALUES(uploaded), supportcrypto=VALUES(supportcrypto), updated_at=NOW()";
 
 try {
+    // 执行SQL语句
     $stmt = $conn->prepare($updateSql);
     $stmt->bind_param("ssssiiiii", $info_hash, $peer_id, $ipv4, $ipv6, $port, $downloaded, $left, $uploaded, $supportcrypto);
     $stmt->execute();
 
+    // 删除超过1小时未更新的peers
     $delSql = "DELETE FROM peers WHERE updated_at < DATE_SUB(NOW(), INTERVAL 1 HOUR)";
     $conn->query($delSql);
 
+    // 获取当前info_hash下的所有peers（最多50个），排除当前peer_id
     $getSql = "SELECT ipv4, ipv6, port FROM peers WHERE info_hash = ? AND peer_id != ? LIMIT 50";
     $stmt = $conn->prepare($getSql);
     $stmt->bind_param("ss", $info_hash, $peer_id);
@@ -50,7 +60,7 @@ try {
       $peers[] = $peerData;
     }
 
-    // 构建响应
+    // 构建并发送响应数据
     $response = [
         "interval" => 1800,  // 推荐的更新间隔时间（秒）
         "peers" => $peers
@@ -61,11 +71,12 @@ try {
 } catch (Exception $e) {
     echo bencode(['failure reason' => 'Server error']);
 } finally {
+    // 关闭statement和连接
     $stmt->close();
     $conn->close();
 }
 
-// Bencode编码函数
+// 定义Bencode编码函数
 function bencode($data) {
     // Bencode encoding logic
     if (is_string($data)) {
