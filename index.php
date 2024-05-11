@@ -28,6 +28,9 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <title>GuGuan123's BitTorrent Tracker Status</title>
+    <!--[if lt IE 9]>
+        <script src="https://cdn.bootcdn.net/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+    <![endif]-->
 </head>
 <body>
     <h1>BitTorrent Tracker Status</h1>
