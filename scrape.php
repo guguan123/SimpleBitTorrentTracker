@@ -10,31 +10,39 @@ if ($conn->connect_error) {
 }
 
 // 获取Scrape请求中的info_hash
-$info_hash = $_GET['info_hash'] ?? null;
+$info_hashes = $_GET['info_hash'] ?? null;
 
 // 检查info_hash是否存在
-if (!$info_hash) {
+if (!$info_hashes) {
     die('Missing info_hash parameter');
 }
 
 // 准备SQL语句用于查询Torrent文件的统计信息
-$sql = "SELECT COUNT(*) AS seeders, SUM(`left`) AS leechers FROM peers WHERE info_hash = ?";
+$sql = "SELECT info_hash, COUNT(*) AS seeders, SUM(`left`) AS leechers FROM peers WHERE info_hash IN (";
+$placeholders = rtrim(str_repeat('?,', count($info_hashes)), ',');
+$sql .= $placeholders . ") GROUP BY info_hash";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $info_hash);
+
+// 绑定参数
+$params = array();
+foreach ($info_hashes as $key => $hash) {
+    $params[$key] = &$info_hashes[$key];
+}
+call_user_func_array(array($stmt, 'bind_param'), array_merge(array(str_repeat('s', count($info_hashes))), $params));
+
 $stmt->execute();
 $result = $stmt->get_result();
 
-// 检查是否找到相应的Torrent文件
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $response = [
+// 构建响应
+$response = array();
+while ($row = $result->fetch_assoc()) {
+    $response[$row['info_hash']] = array(
         "complete" => intval($row['seeders']),
-        "incomplete" => intval($row['leechers']),
-    ];
-    echo bencode($response); // 返回Bencode编码的响应
-} else {
-    echo 'Torrent not found';
+        "incomplete" => intval($row['leechers'])
+    );
 }
+
+echo bencode($response); // 返回Bencode编码的响应
 
 // 关闭statement和连接
 $stmt->close();
