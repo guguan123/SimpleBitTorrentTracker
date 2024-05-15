@@ -12,8 +12,13 @@ if ($conn->connect_error) {
 // 获取Scrape请求中的info_hash
 $info_hashes = $_GET['info_hash'] ?? null;
 
+// 确保info_hashes是数组
+if (!is_array($info_hashes)) {
+    $info_hashes = [$info_hashes]; // 将非数组值转换为数组
+}
+
 // 检查info_hash是否存在
-if (!$info_hashes) {
+if (empty($info_hashes)) {
     die('Missing info_hash parameter');
 }
 
@@ -21,31 +26,40 @@ if (!$info_hashes) {
 $sql = "SELECT info_hash, COUNT(*) AS seeders, SUM(`left`) AS leechers FROM peers WHERE info_hash IN (";
 $placeholders = rtrim(str_repeat('?,', count($info_hashes)), ',');
 $sql .= $placeholders . ") GROUP BY info_hash";
-$stmt = $conn->prepare($sql);
 
-// 绑定参数
-$params = array();
-foreach ($info_hashes as $key => $hash) {
-    $params[$key] = &$info_hashes[$key];
+// 准备并执行SQL语句
+if ($stmt = $conn->prepare($sql)) {
+    // 绑定参数
+    $param_type = str_repeat('s', count($info_hashes)); // 参数类型字符串
+    $params = array_merge([$param_type], $info_hashes); // 参数数组
+    $stmt->bind_param(...$params);
+    
+    // 执行SQL查询
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        
+        // 构建响应
+        $response = [];
+        while ($row = $result->fetch_assoc()) {
+            $response[$row['info_hash']] = [
+                "complete" => intval($row['seeders']),
+                "incomplete" => intval($row['leechers'])
+            ];
+        }
+        
+        // 返回Bencode编码的响应
+        echo bencode($response);
+    } else {
+        echo "SQL execute failed: " . $stmt->error;
+    }
+
+    // 关闭statement
+    $stmt->close();
+} else {
+    echo "SQL prepare failed: " . $conn->error;
 }
-call_user_func_array(array($stmt, 'bind_param'), array_merge(array(str_repeat('s', count($info_hashes))), $params));
 
-$stmt->execute();
-$result = $stmt->get_result();
-
-// 构建响应
-$response = array();
-while ($row = $result->fetch_assoc()) {
-    $response[$row['info_hash']] = array(
-        "complete" => intval($row['seeders']),
-        "incomplete" => intval($row['leechers'])
-    );
-}
-
-echo bencode($response); // 返回Bencode编码的响应
-
-// 关闭statement和连接
-$stmt->close();
+// 关闭连接
 $conn->close();
 
 // 定义Bencode编码函数
