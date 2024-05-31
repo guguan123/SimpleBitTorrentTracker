@@ -2,24 +2,21 @@
 // 引入配置文件
 require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 
+
+// 检查Scrape请求中是否有info_hash参数，并且它是一个数组
+if(isset($_GET['info_hash']) && is_array($_GET['info_hash'])) {
+    $info_hashes = $_GET['info_hash'];
+} else {
+    // 响应信息数组
+    die(bencode(['failure reason' => 'missing info_hashe'])); // 如果没有info_hash参数或不是数组，就输出报错
+}
+
+
 // 创建数据库连接
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 // 检查数据库连接是否成功
 if ($conn->connect_error) {
-    die('Database connection failed: ' . $conn->connect_error);
-}
-
-// 获取Scrape请求中的info_hash
-$info_hashes = $_GET['info_hash'] ?? null;
-
-// 确保info_hashes是数组
-if (!is_array($info_hashes)) {
-    $info_hashes = [$info_hashes]; // 将非数组值转换为数组
-}
-
-// 检查info_hash是否存在
-if (empty($info_hashes)) {
-    die('Missing info_hash parameter');
+    die(bencode(['failure reason' => "Database connection failed: {$conn->connect_error}"]));
 }
 
 // 准备SQL语句用于查询Torrent文件的统计信息
@@ -50,17 +47,18 @@ if ($stmt = $conn->prepare($sql)) {
         // 返回Bencode编码的响应
         echo bencode($response);
     } else {
-        echo "SQL execute failed: " . $stmt->error;
+        die(bencode(['failure reason' => "SQL execute failed: {$stmt->error}"]));
     }
 
     // 关闭statement
     $stmt->close();
 } else {
-    echo "SQL prepare failed: " . $conn->error;
+    die(bencode(['failure reason' => "SQL execute failed: {$stmt->error}"]));
 }
 
 // 关闭连接
 $conn->close();
+
 
 // 定义Bencode编码函数
 function bencode($data) {
