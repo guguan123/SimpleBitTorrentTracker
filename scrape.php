@@ -53,7 +53,7 @@ if ($stmt = $conn->prepare($sql)) {
     // 关闭statement
     $stmt->close();
 } else {
-    die(bencode(['failure reason' => "SQL execute failed: {$stmt->error}"]));
+    die(bencode(['failure reason' => "SQL execute failed: {$conn->error}"]));
 }
 
 // 关闭连接
