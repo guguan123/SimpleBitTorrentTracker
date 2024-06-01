@@ -2,6 +2,9 @@
 // 引入配置文件
 require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 
+// 设置HTTP响应头，指定内容类型为B编码
+header('Content-Type: text/plain');
+
 // 创建数据库连接
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 // 检查数据库连接是否成功
@@ -20,10 +23,13 @@ $left = $_GET['left'];
 $uploaded = $_GET['uploaded'];
 $supportcrypto = isset($_GET['supportcrypto']) ? 1 : 0;
 
-// 检查必要参数是否存在
-if (!$info_hash || !$peer_id || !$port) {
-    echo bencode(['failure reason' => 'missing required parameters']);
-    exit;
+// 检查必要参数并输出具体的错误信息
+if (!$info_hash) {
+    die(bencode(['failure reason' => 'missing info_hash']));
+} elseif (!$peer_id) {
+    die(bencode(['failure reason' => 'missing peer_id']));
+} elseif (!$port) {
+    die(bencode(['failure reason' => 'missing port']));
 }
 
 if (empty($ipv4) && empty($ipv6)) {
