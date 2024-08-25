@@ -1,7 +1,6 @@
 # SimpleBitTorrentTracker
 一个简单的BitTorrent Tracker，只有最基础的功能。~~纯小白刚刚开始自学PHP，写的烂轻喷~~
-
-示例：[GuGuan123's BitTorrent Tracker](https://tracker.guguan.000.pe)
+这个项目写的实在是太糟糕了，不建议用这个项目来搭建Tracker服务器...
 
 ## 安装方法
 1. 下载releases，上传到服务器并解压。
